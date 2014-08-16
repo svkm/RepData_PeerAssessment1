@@ -1,26 +1,15 @@
----
-output:
-  html_document:
-    keep_md: yes
----
-```{r global_options, echo=TRUE}
-```
+
 # Reproducible Research: Peer Assessment 1
-```{r}
+
+```r
 library(ggplot2)
 library(plyr)
 ```
 
 ## Loading and preprocessing the data
-```{r echo=FALSE}
-# Show any code that is needed to
-# 
-# 1. Load the data (i.e. read.csv())
-# 
-# 2. Process/transform the data (if necessary) into a format 
-#    suitable for your analysis
-```
-```{r }
+
+
+```r
 activity <- read.csv("activity.csv", as.is=TRUE)
 
 activity$date <- as.POSIXct(strptime(activity$date, format="%Y-%m-%d"))
@@ -30,38 +19,41 @@ activity_daily <- ddply(activity[!is.na(activity$steps),],
 ```
 
 ## What is mean total number of steps taken per day?
-```{r echo=FALSE}
-# For this part of the assignment, you can ignore the missing values in the dataset.
-# 
-# 1. Make a histogram of the total number of steps taken each day
-# 
-# 2. Calculate and report the mean and median total number of steps taken per day
-```
-```{r}
+
+
+```r
 hist(activity_daily$steps, xlab="Total Number of Steps taken each Day",
      main="Histogram of total number of steps taken each day")
 
 mean_steps_per_day <- mean(activity_daily$steps)
 mean_steps_per_day
+```
 
+```
+## [1] 10766
+```
+
+```r
 median_steps_per_day <- median(activity_daily$steps)
 median_steps_per_day
+```
 
+```
+## [1] 10765
+```
+
+```r
 #lets draw mean and median lines
 abline(v = c(mean_steps_per_day, median_steps_per_day), 
        col = c("blue", "red"), lwd = 2, lty=c(5,3))
 ```
 
-## What is the average daily activity pattern?
-```{r echo=FALSE}
+![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
 
-# 1, Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) 
-#    and the average number of steps taken, averaged across all days (y-axis)
-# 
-# 2. Which 5-minute interval, on average across all the days in the dataset, 
-#    contains the maximum number of steps?
-```
-```{r}
+## What is the average daily activity pattern?
+
+
+```r
 activity_daily_pattern <- ddply(activity[!is.na(activity$steps),], 
                                 .(interval), summarize, steps = mean(steps))
 
@@ -73,35 +65,37 @@ m <- activity_daily_pattern[activity_daily_pattern$steps ==
 abline(v=m, col="red", lwd=2)
 ```
 
+![plot of chunk unnamed-chunk-7](./PA1_template_files/figure-html/unnamed-chunk-7.png) 
+
 ## Imputing missing values
-```{r echo=FALSE}
-# Note that there are a number of days/intervals where there are missing values
-# (coded as NA). The presence of missing days may introduce bias into some
-# calculations or summaries of the data.
-# 
-# 1. Calculate and report the total number of missing values in the dataset (i.e.
-#    the total number of rows with NAs)
-# 
-# 2. Devise a strategy for filling in all of the missing values in the dataset. 
-#    The strategy does not need to be sophisticated. For example, you could use 
-#    the mean/median for that day, or the mean for that 5-minute interval, etc.
-# 
-# 3. Create a new dataset that is equal to the original dataset but with the
-#    missing data filled in.
-# 
-# 4. Make a histogram of the total number of steps taken each day and Calculate
-#    and report the mean and median total number of steps taken per day. Do these
-#    values differ from the estimates from the first part of the assignment? What
-#    is the impact of imputing missing data on the estimates of the total daily
-#    number of steps?
-```
-```{r}
+
+
+```r
 # rows with NAs
 summary(activity)
+```
+
+```
+##      steps            date                        interval   
+##  Min.   :  0.0   Min.   :2012-10-01 00:00:00   Min.   :   0  
+##  1st Qu.:  0.0   1st Qu.:2012-10-16 00:00:00   1st Qu.: 589  
+##  Median :  0.0   Median :2012-10-31 00:00:00   Median :1178  
+##  Mean   : 37.4   Mean   :2012-10-31 00:25:34   Mean   :1178  
+##  3rd Qu.: 12.0   3rd Qu.:2012-11-15 00:00:00   3rd Qu.:1766  
+##  Max.   :806.0   Max.   :2012-11-30 00:00:00   Max.   :2355  
+##  NA's   :2304
+```
+
+```r
 # alternatively
 sum(is.na(activity$steps))
 ```
-```{r}
+
+```
+## [1] 2304
+```
+
+```r
 # Compute mean of steps by day of week and interval (for steps != NA)
 # We replace NA values with the corresponding avg value for the same Day of the Week
 # and interval
@@ -119,7 +113,8 @@ sum(is.na(activity$steps))
 #     steps	    date	    interval	dow
 # 1	  1.4285714	2012-10-01	0	        Monday
 ```
-```{r}
+
+```r
 activity$dow <-  weekdays(activity$date)
 activity_daily_mean_int <- ddply(activity, .(dow, interval), 
                              summarize, steps = mean(steps, na.rm=TRUE))
@@ -139,31 +134,34 @@ hist(dat2_daily$steps, xlab="Total Number of Steps taken each Day",
 
 mean_steps_per_day_impute <- mean(dat2_daily$steps)
 mean_steps_per_day_impute
+```
 
+```
+## [1] 10821
+```
+
+```r
 median_steps_per_day_impute <- median(dat2_daily$steps)
 median_steps_per_day_impute
+```
 
+```
+## [1] 11015
+```
+
+```r
 #lets draw mean and median lines
 abline(v = c(mean_steps_per_day_impute, median_steps_per_day_impute), 
        col = c("blue", "red"), lwd = 2, lty=c(5,3))
-
 ```
+
+![plot of chunk unnamed-chunk-11](./PA1_template_files/figure-html/unnamed-chunk-11.png) 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r echo=FALSE}
-# For this part the weekdays() function may be of some help here. Use the
-# dataset with the filled-in missing values for this part.
-# 
-# 1. Create a new factor variable in the dataset with two levels - "weekday" and
-#    "weekend" indicating whether a given date is a weekday or weekend day.
-# 
-# 2. Make a panel plot containing a time series plot (i.e. type = "l") of the
-#    5-minute interval (x-axis) and the average number of steps taken, averaged
-#    across all weekday days or weekend days (y-axis). The plot should look
-#    something like the following, which was creating using simulated data:
-```
-```{r}
+
+
+```r
 is.weekend <- function(x) 
     ifelse(x == "Saturday" | x == "Sunday", "Weekend","Weekday")
 
@@ -182,5 +180,6 @@ abline(v=m, col="red", lwd=2)
 g <- ggplot(dat3_daily_pattern, aes(interval, steps))
 g + geom_line() +  facet_grid(day~.) +
     labs(y="Number of Steps", x="Interval")
-
 ```
+
+![plot of chunk unnamed-chunk-13](./PA1_template_files/figure-html/unnamed-chunk-13.png) 
